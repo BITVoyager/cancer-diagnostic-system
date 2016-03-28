@@ -1,6 +1,4 @@
 # cancer-diagnostic-system
-Authors: Yao Chen, Mohamed Najihi and Agrata Kumar (name listed in no particular order)
-
 We divide this project into 3 modules. 
 
   In module 1, we implemented two color-based image segmentation algorithms: kNNs, GMMs-EM and LDA (to be merged into this repo). 
