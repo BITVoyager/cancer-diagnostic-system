@@ -44,7 +44,7 @@ nuclearMask = (S == 1);
 cytoplasmMask = (S == 2);
 
 % save results
-imwrite(nuclearMask, 'nuclearMask.jpg');
-imwrite(cytoplasmMask, 'cytoplasmMask.jpg');
+imwrite(nuclearMask, '../FE/nuclearMask.jpg');
+imwrite(cytoplasmMask, '../FE/cytoplasmMask.jpg');
 end
 
