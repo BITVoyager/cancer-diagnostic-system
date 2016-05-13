@@ -23,7 +23,7 @@ function varargout = Module3(varargin)
 
 % Edit the above text to modify the response to help Module3
 
-% Last Modified by GUIDE v2.5 20-Apr-2016 17:14:57
+% Last Modified by GUIDE v2.5 01-May-2016 22:54:31
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -63,6 +63,12 @@ handles.algorithm = -1;
 handles.k = -1;
 handles.nrTopFeatures = -1;
 handles.imageIdx = -1;
+
+handles.testDS1Dir = 'C:\Users\Yao\Documents\data\TCGA\Dataset1\';
+handles.testDS2Dir = 'C:\Users\Yao\Documents\data\TCGA\Dataset2\KIRC_Tumor\';
+handles.testDS3Dir = 'C:\Users\Yao\Documents\data\TCGA\Dataset3\TCGA\';
+
+handles.imageName = '';
 
 % Update handles structure
 guidata(hObject, handles);
@@ -339,6 +345,7 @@ if handles.mode == 2
             temp = load('.\dataset1\testing\correspondence.mat');
             imageDir = temp.imageDir;
             set(handles.editResultImageIdx, 'String', imageDir(idx).name(1:end-4));
+            handles.imageName = imageDir(idx).name(1:end-4);
             if strcmp(imageDir(idx).name(1), 'N')
                 tempStr = 'Necrosis';
             elseif strcmp(imageDir(idx).name(1), 'S')
@@ -352,6 +359,7 @@ if handles.mode == 2
             temp = load('.\dataset2\testing\correspondence.mat');
             imageDir = temp.imageDir;
             set(handles.editResultImageIdx, 'String', imageDir(16*(idx-1)+1).name(1:12));
+            handles.imageName = imageDir(16*(idx-1)+1).name(1:12);
             labels = xlsread('.\ANN2\test_labels.xlsx');
             set(handles.editResultLabel, 'String', num2str(labels(idx, 3-endPoint)));
         case 3
@@ -359,6 +367,7 @@ if handles.mode == 2
             temp = load('.\dataset3\testing\correspondence.mat');
             imageDir = temp.imageDir;
             set(handles.editResultImageIdx, 'String', imageDir(16*(idx-1)+1).name(1:12));
+            handles.imageName = imageDir(16*(idx-1)+1).name(1:12);
             labels = xlsread('.\ANN3\testing.xlsx');
             set(handles.editResultLabel, 'String', num2str(labels(idx, 3-endPoint)));
     end
@@ -628,6 +637,8 @@ if handles.mode == 1    % Algorithm Evaluation
 elseif handles.mode == 2
     switch handles.dataset
         case 1
+            set(handles.btNext, 'Enable', 'Off');
+            set(handles.btPrev, 'Enable', 'Off');
             temp1 = load('.\dataset1\testing\testing.mat');
             idx = str2num(get(handles.editImageIdx, 'String'));
             C = temp1.features;
@@ -647,6 +658,10 @@ elseif handles.mode == 2
             else
                 set(handles.editACC, 'String', '0%');
             end
+            image = imread([handles.testDS1Dir handles.imageName '.png']);
+            imshow(image);
+            handles.imgIdx = 1;
+            guidata(hObject, handles);
             
         case 2
             if handles.algorithm == 1
@@ -707,7 +722,14 @@ elseif handles.mode == 2
                 else
                     set(handles.editACC, 'String', '0%');
                 end
-            end        
+            end  
+            iidir = dir([handles.testDS2Dir handles.imageName '*.png']);
+            image = imread([handles.testDS2Dir iidir(1).name]);
+            imshow(image);
+            set(handles.btNext, 'Enable', 'On');
+            set(handles.btPrev, 'Enable', 'On');
+            handles.imgIdx = 1;
+            guidata(hObject, handles);
            
         case 3
             if handles.algorithm == 1
@@ -768,7 +790,14 @@ elseif handles.mode == 2
                 else
                     set(handles.editACC, 'String', '0%');
                 end
-            end                    
+            end 
+            iidir = dir([handles.testDS3Dir handles.imageName '*.png']);
+            image = imread([handles.testDS3Dir iidir(1).name]);
+            imshow(image);
+            set(handles.btNext, 'Enable', 'On');
+            set(handles.btPrev, 'Enable', 'On');
+            handles.imgIdx = 1;
+            guidata(hObject, handles);
     end
     
 else
@@ -1094,3 +1123,46 @@ function editPrediction_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+% --- Executes on button press in btNext.
+function btNext_Callback(hObject, eventdata, handles)
+% hObject    handle to btNext (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+handles.imgIdx = handles.imgIdx + 1;
+if handles.imgIdx == 17
+    handles.imgIdx = 1;
+end
+guidata(hObject, handles);
+if handles.dataset == 3
+    iidir = dir([handles.testDS3Dir handles.imageName '*.png']);
+    image = imread([handles.testDS3Dir iidir(handles.imgIdx).name]);
+elseif handles.dataset == 2
+    iidir = dir([handles.testDS2Dir handles.imageName '*.png']);
+    image = imread([handles.testDS2Dir iidir(handles.imgIdx).name]);
+end
+imshow(image);
+
+
+% --- Executes on button press in btPrev.
+function btPrev_Callback(hObject, eventdata, handles)
+% hObject    handle to btPrev (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+handles.imgIdx = handles.imgIdx - 1;
+if handles.imgIdx == 0
+    handles.imgIdx = 16;
+end
+guidata(hObject, handles);
+if handles.dataset == 3
+    iidir = dir([handles.testDS3Dir handles.imageName '*.png']);
+    image = imread([handles.testDS3Dir iidir(handles.imgIdx).name]);
+elseif handles.dataset == 2
+    iidir = dir([handles.testDS2Dir handles.imageName '*.png']);
+    image = imread([handles.testDS2Dir iidir(handles.imgIdx).name]);
+end
+imshow(image);
+
